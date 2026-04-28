@@ -1,0 +1,57 @@
+groups:
+  - name: iptv_alerts
+    interval: 30s
+    rules:
+      - alert: StreamHighPacketLoss
+        expr: iptv_stream_loss_percent > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High packet loss on stream {{ $labels.multicast_group }}"
+          description: "Stream {{ $labels.multicast_group }} has {{ $value | printf \"%.1f\" }}% packet loss (threshold: 5%)"
+
+      - alert: ActiveStreamCountDrop
+        expr: iptv_active_streams_total < 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No active IPTV streams detected"
+          description: "Active stream count has dropped to {{ $value }} — all streams may be down"
+
+      - alert: StreamCompleteLoss
+        expr: iptv_stream_loss_percent == 100
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Complete stream failure: {{ $labels.multicast_group }}"
+          description: "Stream {{ $labels.multicast_group }} is completely dead (100% loss)"
+
+      - alert: StreamHighJitter
+        expr: iptv_stream_jitter_ms > 20
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High jitter on stream {{ $labels.multicast_group }}"
+          description: "Jitter is {{ $value | printf \"%.1f\" }}ms (threshold: 20ms) — expect buffering on TVs"
+
+      - alert: StreamBurstLoss
+        expr: iptv_stream_burst_events_total > 2
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Burst packet loss on {{ $labels.multicast_group }}"
+          description: "{{ $value }} burst loss events in last window — consecutive drops indicate link instability"
+
+      - alert: MonitorHighCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Monitor host CPU above 85%"
+          description: "CPU usage is {{ $value | printf \"%.1f\" }}% — may affect capture accuracy"

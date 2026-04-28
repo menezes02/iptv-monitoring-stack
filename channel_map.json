@@ -1,0 +1,14 @@
+{
+  "_comment": "Manual channel name overrides. Used as fallback if SDT auto-discovery fails.",
+  "_usage": "Add entries as '239.10.10.x:PORT': 'Channel Name' — fill in on-site as you discover streams.",
+  "239.10.10.1:1234": "",
+  "239.10.10.2:1235": "",
+  "239.10.10.3:1236": "",
+  "239.10.10.4:1237": "",
+  "239.10.10.5:1238": "",
+  "239.10.10.6:1239": "",
+  "239.10.10.7:1240": "",
+  "239.10.10.8:1241": "",
+  "239.10.10.9:1242": "",
+  "239.10.10.10:1243": ""
+}

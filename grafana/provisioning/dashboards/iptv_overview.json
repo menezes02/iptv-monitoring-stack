@@ -1,0 +1,238 @@
+{
+  "title": "IPTV Stream Health",
+  "uid": "iptv-overview",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Active Streams",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "red", "value": 0 },
+            { "color": "yellow", "value": 1 },
+            { "color": "green", "value": 5 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "iptv_active_streams_total", "legendFormat": "Active", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Streams With Loss >5%",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 1 },
+            { "color": "red", "value": 3 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "count(iptv_stream_loss_percent > 5) or vector(0)", "legendFormat": "Degraded", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Avg Loss %",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 2 },
+            { "color": "red", "value": 5 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "avg(iptv_stream_loss_percent)", "legendFormat": "Avg Loss", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Avg Jitter (ms)",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 10 },
+            { "color": "red", "value": 20 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "avg(iptv_stream_jitter_ms)", "legendFormat": "Avg Jitter", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Total Bitrate (Mbps)",
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "options": { "colorMode": "value", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "Mbps", "decimals": 1 } },
+      "targets": [{ "expr": "sum(iptv_stream_bitrate_kbps) / 1000", "legendFormat": "Total", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Active Stream Count",
+      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "targets": [{ "expr": "iptv_active_streams_total", "legendFormat": "Active Streams", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Packet Loss % Per Channel",
+      "gridPos": { "x": 8, "y": 4, "w": 16, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0,
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 2 },
+            { "color": "red", "value": 5 }
+          ]},
+          "custom": { "thresholdsStyle": { "mode": "area" } }
+        }
+      },
+      "targets": [{ "expr": "iptv_stream_loss_percent", "legendFormat": "{{channel}}", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Bitrate Per Channel (kbps)",
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 8 },
+      "fieldConfig": {
+        "defaults": { "unit": "kbps", "color": { "mode": "palette-classic" } }
+      },
+      "targets": [{ "expr": "iptv_stream_bitrate_kbps", "legendFormat": "{{channel}}", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Jitter Per Channel (ms)",
+      "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms", "min": 0,
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 10 },
+            { "color": "red", "value": 20 }
+          ]},
+          "custom": { "thresholdsStyle": { "mode": "area" } }
+        }
+      },
+      "targets": [{ "expr": "iptv_stream_jitter_ms", "legendFormat": "{{channel}}", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Burst Loss Events Per Channel",
+      "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short", "min": 0,
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 1 },
+            { "color": "red", "value": 3 }
+          ]},
+          "custom": { "thresholdsStyle": { "mode": "area" } }
+        }
+      },
+      "targets": [{ "expr": "iptv_stream_burst_events_total", "legendFormat": "{{channel}}", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Channel Health Table",
+      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 10 },
+      "options": { "sortBy": [{ "displayName": "Loss %", "desc": true }] },
+      "targets": [
+        { "expr": "iptv_stream_bitrate_kbps",       "legendFormat": "{{channel}}", "instant": true, "datasource": "Prometheus" },
+        { "expr": "iptv_stream_loss_percent",        "legendFormat": "{{channel}}", "instant": true, "datasource": "Prometheus" },
+        { "expr": "iptv_stream_jitter_ms",           "legendFormat": "{{channel}}", "instant": true, "datasource": "Prometheus" },
+        { "expr": "iptv_stream_burst_events_total",  "legendFormat": "{{channel}}", "instant": true, "datasource": "Prometheus" },
+        { "expr": "iptv_stream_uptime_seconds / 60", "legendFormat": "{{channel}}", "instant": true, "datasource": "Prometheus" }
+      ],
+      "fieldConfig": {
+        "defaults": { "custom": { "displayMode": "color-background" } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value #A" },
+            "properties": [
+              { "id": "displayName", "value": "Bitrate (kbps)" },
+              { "id": "custom.displayMode", "value": "auto" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #B" },
+            "properties": [
+              { "id": "displayName", "value": "Loss %" },
+              { "id": "unit", "value": "percent" },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 2 },
+                { "color": "red", "value": 5 }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #C" },
+            "properties": [
+              { "id": "displayName", "value": "Jitter (ms)" },
+              { "id": "unit", "value": "ms" },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 10 },
+                { "color": "red", "value": 20 }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #D" },
+            "properties": [
+              { "id": "displayName", "value": "Burst Events" },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 1 },
+                { "color": "red", "value": 3 }
+              ]}}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Value #E" },
+            "properties": [
+              { "id": "displayName", "value": "Uptime (min)" },
+              { "id": "unit", "value": "m" },
+              { "id": "custom.displayMode", "value": "auto" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

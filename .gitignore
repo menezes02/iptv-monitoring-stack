@@ -1,0 +1,8 @@
+logs/
+reports/
+*.pid
+*.log
+grafana/grafana_data/
+prometheus/prometheus_data/
+__pycache__/
+*.pyc
