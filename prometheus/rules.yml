@@ -47,6 +47,33 @@ groups:
           summary: "Burst packet loss on {{ $labels.multicast_group }}"
           description: "{{ $value }} burst loss events in last window — consecutive drops indicate link instability"
 
+      - alert: HeadendUnreachable
+        expr: headend_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CMP201AD headend unreachable via SNMP"
+          description: "Headend {{ $labels.ip }} has not responded to SNMP for 1 minute — encoder may be down or network disconnected"
+
+      - alert: HeadendInterfaceDown
+        expr: headend_interface_up == 0
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Headend interface down: {{ $labels.ifname }}"
+          description: "Interface {{ $labels.ifname }} on headend {{ $labels.ip }} is operationally down"
+
+      - alert: HeadendHighRxErrors
+        expr: rate(headend_interface_rx_errors_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High receive errors on headend {{ $labels.ifname }}"
+          description: "{{ $value | printf \"%.0f\" }} RX errors/s on {{ $labels.ifname }} — check cable and switch port"
+
       - alert: MonitorHighCPU
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
         for: 5m

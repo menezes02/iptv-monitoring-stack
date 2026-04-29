@@ -166,10 +166,114 @@
       "targets": [{ "expr": "iptv_stream_burst_events_total", "legendFormat": "{{channel}}", "datasource": "Prometheus" }]
     },
     {
+      "id": 12,
+      "type": "row",
+      "title": "Headend (CMP201AD)",
+      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 1 },
+      "collapsed": false
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Headend Status",
+      "gridPos": { "x": 0, "y": 29, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] },
+        "mappings": [{"type":"value","options":{"0":{"text":"DOWN","color":"red"},"1":{"text":"UP","color":"green"}}}]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "red", "value": 0 },
+            { "color": "green", "value": 1 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "headend_up", "legendFormat": "Headend", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "Headend Uptime",
+      "gridPos": { "x": 4, "y": 29, "w": 4, "h": 4 },
+      "options": { "colorMode": "value", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 0 } },
+      "targets": [{ "expr": "headend_uptime_seconds", "legendFormat": "Uptime", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 15,
+      "type": "stat",
+      "title": "Web GUI Reachable",
+      "gridPos": { "x": 8, "y": 29, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] },
+        "mappings": [{"type":"value","options":{"0":{"text":"NO","color":"red"},"1":{"text":"YES","color":"green"}}}]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "red", "value": 0 },
+            { "color": "green", "value": 1 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "headend_http_reachable", "legendFormat": "HTTP", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 16,
+      "type": "stat",
+      "title": "Interfaces Up",
+      "gridPos": { "x": 12, "y": 29, "w": 4, "h": 4 },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "red", "value": 0 },
+            { "color": "yellow", "value": 1 },
+            { "color": "green", "value": 2 }
+          ]}
+        }
+      },
+      "targets": [{ "expr": "count(headend_interface_up == 1) or vector(0)", "legendFormat": "Up", "datasource": "Prometheus" }]
+    },
+    {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Headend Interface Throughput (bytes/s)",
+      "gridPos": { "x": 0, "y": 33, "w": 12, "h": 8 },
+      "fieldConfig": {
+        "defaults": { "unit": "Bps", "color": { "mode": "palette-classic" } }
+      },
+      "targets": [
+        { "expr": "rate(headend_interface_rx_bytes_total[1m])", "legendFormat": "RX {{ifname}}", "datasource": "Prometheus" },
+        { "expr": "rate(headend_interface_tx_bytes_total[1m])", "legendFormat": "TX {{ifname}}", "datasource": "Prometheus" }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Headend Interface Errors/s",
+      "gridPos": { "x": 12, "y": 33, "w": 12, "h": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short", "min": 0,
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": 0 },
+            { "color": "yellow", "value": 1 },
+            { "color": "red", "value": 10 }
+          ]},
+          "custom": { "thresholdsStyle": { "mode": "area" } }
+        }
+      },
+      "targets": [
+        { "expr": "rate(headend_interface_rx_errors_total[1m])", "legendFormat": "RX Err {{ifname}}", "datasource": "Prometheus" },
+        { "expr": "rate(headend_interface_tx_errors_total[1m])", "legendFormat": "TX Err {{ifname}}", "datasource": "Prometheus" }
+      ]
+    },
+    {
       "id": 11,
       "type": "table",
       "title": "Channel Health Table",
-      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 10 },
+      "gridPos": { "x": 0, "y": 41, "w": 24, "h": 10 },
       "options": { "sortBy": [{ "displayName": "Loss %", "desc": true }] },
       "targets": [
         { "expr": "iptv_stream_bitrate_kbps",       "legendFormat": "{{channel}}", "instant": true, "datasource": "Prometheus" },

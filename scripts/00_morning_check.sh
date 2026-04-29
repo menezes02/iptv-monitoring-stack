@@ -20,7 +20,7 @@ for t in docker tcpdump ffmpeg ffprobe ffplay wireshark python3; do
 done
 
 hdr "Docker containers"
-for svc in iptv_prometheus iptv_grafana iptv_node_exporter iptv_exporter; do
+for svc in iptv_prometheus iptv_grafana iptv_node_exporter iptv_exporter iptv_headend_exporter; do
     STATUS=$(docker inspect --format '{{.State.Status}}' "$svc" 2>/dev/null || echo "missing")
     [[ "$STATUS" == "running" ]] && ok "$svc running" || fail "$svc is $STATUS"
 done
@@ -38,14 +38,15 @@ check_url() {
         fi
     fi
 }
-check_url "Grafana"        "http://localhost:3000/api/health"  '"ok"'
-check_url "Prometheus"     "http://localhost:9090/-/healthy"    "Prometheus"
-check_url "IPTV Exporter"  "http://localhost:9200/health"      "ok"
-check_url "Node Exporter"  "http://localhost:9100/metrics"     "node_"
+check_url "Grafana"           "http://localhost:3000/api/health"  '"ok"'
+check_url "Prometheus"        "http://localhost:9090/-/healthy"    "Prometheus"
+check_url "IPTV Exporter"     "http://localhost:9200/health"      "ok"
+check_url "Node Exporter"     "http://localhost:9100/metrics"     "node_"
+check_url "Headend Exporter"  "http://localhost:9300/health"      "ok"
 
 hdr "Prometheus scrape targets"
 TARGETS=$(curl -s http://localhost:9090/api/v1/targets 2>/dev/null)
-for job in prometheus iptv_exporter node_exporter; do
+for job in prometheus iptv_exporter node_exporter headend_exporter; do
     HEALTH=$(echo "$TARGETS" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
@@ -100,9 +101,11 @@ else
     echo -e "${GRN}Stack is ready. Good luck on-site!${NC}"
     echo ""
     echo "On-site checklist:"
-    echo "  1. sudo ip link set enp2s0 up      (bring up ethernet)"
-    echo "  2. sudo ./scripts/05_igmp_test.sh  (0 TVs — IGMP check)"
-    echo "  3. sudo ./scripts/01_baseline_scan.sh enp2s0 60"
-    echo "  4. Open http://localhost:3000       (Grafana)"
-    echo "  5. Turn on TVs in batches of 20"
+    echo "  1. sudo ip link set enp2s0 up              (bring up ethernet)"
+    echo "  2. ./scripts/09_headend_discover.sh        (find CMP201AD IP)"
+    echo "  3. sudo ./scripts/05_igmp_test.sh          (0 TVs — IGMP check)"
+    echo "  4. sudo ./scripts/01_baseline_scan.sh enp2s0 60"
+    echo "  5. Open http://localhost:3000              (Grafana)"
+    echo "  6. Open http://192.168.1.10                (CMP201AD web GUI — admin/admin)"
+    echo "  7. Turn on TVs in batches of 20"
 fi

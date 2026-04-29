@@ -27,3 +27,8 @@ scrape_configs:
     static_configs:
       - targets: ["host.docker.internal:9200"]
     scrape_interval: 10s
+
+  - job_name: headend_exporter
+    static_configs:
+      - targets: ["host.docker.internal:9300"]
+    scrape_interval: 30s

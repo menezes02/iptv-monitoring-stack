@@ -62,6 +62,25 @@ services:
       - "--path.sysfs=/host/sys"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
 
+  headend_exporter:
+    image: python:3.11-slim
+    container_name: iptv_headend_exporter
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - HEADEND_IP=${HEADEND_IP:-192.168.1.10}
+      - SNMP_COMMUNITY=${SNMP_COMMUNITY:-public}
+      - POLL_INTERVAL=30
+      - EXPORTER_PORT=9300
+      - LOG_DIR=/app/logs
+    volumes:
+      - ./scripts/headend_snmp_exporter.py:/app/headend_snmp_exporter.py:ro
+      - ./logs:/app/logs
+    command: >
+      sh -c "pip install pysnmp requests -q && python /app/headend_snmp_exporter.py"
+    depends_on:
+      - prometheus
+
   iptv_exporter:
     image: python:3.11-slim
     container_name: iptv_exporter
