@@ -28,8 +28,9 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-MULTICAST_BASE   = "239.10.10"
-PORTS            = list(range(1234, 1251))
+MULTICAST_BASE   = "227.10.20"
+MULTICAST_RANGE  = range(1, 121)          # channels 1–120 (CMP201AD max 120 outputs)
+PORTS            = [1234]                  # single port — all streams on :1234
 MEASURE_WINDOW   = 10
 METRICS_PORT     = 9200
 BUFFER_SIZE      = 65535
@@ -419,11 +420,11 @@ class MetricsHandler(BaseHTTPRequestHandler):
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    log.info("IPTV Exporter starting — 239.10.10.1–20 ports 1234–1250")
+    log.info(f"IPTV Exporter starting — {MULTICAST_BASE}.{MULTICAST_RANGE.start}–{MULTICAST_RANGE.stop-1} port(s) {PORTS}")
     os.makedirs("/app/logs", exist_ok=True)
     _load_channel_cache()
 
-    for last_octet in range(1, 21):
+    for last_octet in MULTICAST_RANGE:
         group = f"{MULTICAST_BASE}.{last_octet}"
         for port in PORTS:
             t = threading.Thread(target=listen_stream, args=(group, port), daemon=True)
